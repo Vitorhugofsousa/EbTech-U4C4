@@ -44,6 +44,9 @@ pico_set_program_version(EBTECH_U4C5 "0.1")
 pico_enable_stdio_uart(EBTECH_U4C5 0)
 pico_enable_stdio_usb(EBTECH_U4C5 1)
 
+pico_generate_pio_header(EBTECH_U4C5 ${CMAKE_CURRENT_LIST_DIR}/EBTECH_U4C5.pio)
+
+target_sources(EBTECH_U4C5 PRIVATE EBTECH_U4C5.c)
 # Add the standard library to the build
 target_link_libraries(EBTECH_U4C5
         pico_stdlib
