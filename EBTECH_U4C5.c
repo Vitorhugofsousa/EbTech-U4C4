@@ -1,3 +1,4 @@
+//include das bibliotecas necessárias
 #include <stdio.h>
 #include <stdlib.h>
 #include "pico/stdlib.h"
@@ -7,8 +8,8 @@
 #include "pico/bootrom.h"
 #include "EBTECH_U4C5.pio.h"
 
-
-#define LED_PIN_RED 13 //led verde
+//definição dos pinos
+#define LED_PIN_RED 13 //led vermelho
 #define NUM_PIXELS 25 //número de leds na matriz
 #define LED_PIN 7 //pino de saída da matriz de led
 #define BOTAO_A 5 //pino saida botao a
@@ -68,7 +69,6 @@ void acionar_buzzer(int interval)
 
 
 //numeros para exibir na matriz de led
-
         double apagar_leds[25] ={   //Apagar LEDs da matriz
               0.0, 0.0, 0.0, 0.0, 0.0,          
               0.0, 0.0, 0.0, 0.0, 0.0, 
@@ -76,70 +76,70 @@ void acionar_buzzer(int interval)
               0.0, 0.0, 0.0, 0.0, 0.0,
               0.0, 0.0, 0.0, 0.0, 0.0};
 
-        double numero0[25] = {
+        double numero0[25] = {    //Número 0
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 1.0, 1.0,
             1.0, 0.0, 1.0, 0.0, 1.0,
             1.0, 1.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
         
-        double numero1[25] = {
+        double numero1[25] = {    //Número 1
             0.0, 1.0, 1.0, 1.0, 0.0,
             0.0, 0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0, 0.0,
             0.0, 1.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0, 0.0};
-        
-        double numero2[25] = {
+          
+        double numero2[25] = {    //Número 2
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 0.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
         
-        double numero3[25] = {
+        double numero3[25] = {    //Número 3
             1.0, 1.0, 1.0, 1.0, 1.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double numero4[25] = {
+        double numero4[25] = {    //Número 4
             1.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 1.0};
           
-        double numero5[25] = {
+        double numero5[25] = {    //Número 5
             1.0, 1.0, 1.0, 1.0, 1.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 0.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double numero6[25] = {
+        double numero6[25] = {    //Número 6
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 0.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double numero7[25] = {
-            1.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 1.0,
+        double numero7[25] = {    //Número 7
             1.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
+            1.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double numero8[25] = {
+        double numero8[25] = {    //Número 8
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double numero9[25] = {
+        double numero9[25] = {    //Número 9
             1.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0,
@@ -164,14 +164,13 @@ int main() {
     gpio_set_dir(BOTAO_A, GPIO_IN);
     gpio_set_dir(BOTAO_B, GPIO_IN);
     
-  printf("iniciando a transmissão PIO");
-    if (frequenciaClock)
-    printf("clock set to %ld\n", clock_get_hz(clk_sys));
-
   // configurações da PIO
-  uint offset = pio_add_program(pio, &pio_matrix_program);
-  uint sm = pio_claim_unused_sm(pio, true);
-  pio_matrix_program_init(pio, sm, offset, LED_PIN);
+    printf("iniciando a transmissão PIO");
+    if (frequenciaClock)
+      printf("clock set to %ld\n", clock_get_hz(clk_sys));
+    uint offset = pio_add_program(pio, &pio_matrix_program);
+    uint sm = pio_claim_unused_sm(pio, true);
+    pio_matrix_program_init(pio, sm, offset, LED_PIN);
     
     bool botao_pressionado = true;
     // Loop infinito
