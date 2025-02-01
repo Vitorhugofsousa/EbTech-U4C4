@@ -14,7 +14,6 @@
 #define LED_PIN 7 //pino de saída da matriz de led
 #define BOTAO_A 5 //pino saida botao a
 #define BOTAO_B 6 //pino saida botao b
-#define BUZZER_A 10 //pino de saida do buzzer a
 
 //variáveis globais
 int static volatile indice = 0; //variável para countrole do índice da matriz de led
@@ -72,18 +71,7 @@ void desenho_pio(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r
   };
 }
 
-// Função para acionar o buzzer
-void acionar_buzzer(int interval)
-{
-  gpio_set_function(BUZZER_A, GPIO_FUNC_PWM); // Configura pino como saída PWM
-    uint slice_num = pwm_gpio_to_slice_num(BUZZER_A); // Obter o slice do PWM
-    pwm_set_clkdiv(slice_num, 125.0);                  
-    pwm_set_wrap(slice_num, 500);                      
-    pwm_set_gpio_level(BUZZER_A, 150);              
-    pwm_set_enabled(slice_num, true); // Ativar o PWM
-    sleep_ms(interval);// Manter o som pelo intervalo
-    pwm_set_enabled(slice_num, false);// Desativar o PWM  
-}
+
 
 //numeros para exibir na matriz de led
         double apagar_leds[25] ={   //Apagar LEDs da matriz
@@ -165,7 +153,7 @@ void acionar_buzzer(int interval)
 
         double *numeros[11] = {apagar_leds, numero0, numero1, numero2, numero3, numero4, numero5, numero6, numero7, numero8, numero9};
 
-
+// Função de callback para os botões
 void callback_button(uint gpio, uint32_t events) {
     uint time = to_ms_since_boot(get_absolute_time());
     if (time - actual_time > 250) { // Condição para evitar múltiplos pressionamentos (debounce)
@@ -177,9 +165,9 @@ void callback_button(uint gpio, uint32_t events) {
             count++;       // Incrementa o contador
         } else if (gpio == BOTAO_B) { // Verifica se o botão B foi pressionado
             indice--;               // Decrementa o índice
-            new_index();  
-            desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);
-            count++;
+            new_index();       // Verifica se o índice está dentro do intervalo
+            desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);  // Desenha o número na matriz
+            count++;    // Incrementa o contador
         }
     }
 }
@@ -205,7 +193,7 @@ int main() {
     gpio_set_dir(BOTAO_B, GPIO_IN);
     gpio_pull_up(BOTAO_A);
     gpio_pull_up(BOTAO_B);
-    
+
     // Inicializa a matriz de LED
       desenho_pio(apagar_leds, valor_led, pio, sm, r, g, b); // Apaga os LEDs ao iniciar o programa
     
@@ -220,8 +208,10 @@ int main() {
       sm = pio_claim_unused_sm(pio, true);
       pio_matrix_program_init(pio, sm, offset, LED_PIN);
     
+      // Configuração dos botões
       gpio_set_irq_enabled_with_callback(BOTAO_A, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
       gpio_set_irq_enabled_with_callback(BOTAO_B, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
+
     // Loop infinito
     while (1) {
       piscar_led(); // Piscar o LED vermelho
