@@ -16,6 +16,14 @@
 #define BOTAO_B 6 //pino saida botao b
 #define BUZZER_A 10 //pino de saida do buzzer a
 
+//variáveis globais
+int static volatile indice = 0; //variável para countrole do índice da matriz de led
+uint count = 0; //variável para countrole do countador
+uint actual_time = 0; //variável para countrole do tempo
+uint valor_led; //variável para countrole do valor do led
+uint sm;  //variável para countrole do state machine
+PIO pio = pio0;  //variável para countrole da pio
+
 //função piscar led, faz o led vermelho do pino 13 piscar 5 vezes por segundo
     void piscar_led(){
       gpio_put(LED_PIN_RED, true);
@@ -45,6 +53,15 @@ int getIndex(int x, int y){
   }
 }
 
+// Função para controlar o índice da matriz
+void new_index(){
+  if (indice > 9){
+    indice = 0;
+  }else if(indice < 0){
+    indice = 9;
+  }
+}
+
 // Funcao para desenhar a matriz
 void desenho_pio(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r, double g, double b)
 {
@@ -55,6 +72,7 @@ void desenho_pio(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r
   };
 }
 
+// Função para acionar o buzzer
 void acionar_buzzer(int interval)
 {
   gpio_set_function(BUZZER_A, GPIO_FUNC_PWM); // Configura pino como saída PWM
@@ -66,7 +84,6 @@ void acionar_buzzer(int interval)
     sleep_ms(interval);// Manter o som pelo intervalo
     pwm_set_enabled(slice_num, false);// Desativar o PWM  
 }
-
 
 //numeros para exibir na matriz de led
         double apagar_leds[25] ={   //Apagar LEDs da matriz
@@ -148,33 +165,63 @@ void acionar_buzzer(int interval)
 
         double *numeros[10] = {numero0, numero1, numero2, numero3, numero4, numero5, numero6, numero7, numero8, numero9};
 
+
+void callback_button(uint gpio, uint32_t events) {
+    uint time = to_ms_since_boot(get_absolute_time());
+    if (time - actual_time > 250) { // Condição para evitar múltiplos pressionamentos (debounce)
+        actual_time = time;
+        if (gpio == BOTAO_A) {
+            indice++;
+            new_index();
+            desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);
+            count++;
+        } else if (gpio == BOTAO_B) {
+            indice--;
+            new_index();
+            desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);
+            count++;
+        }
+    }
+}
         
 int main() {
-  PIO pio = pio0;
-  bool frequenciaClock;
-  uint16_t i;
-  uint valor_led;
-  float r = 0.0, b = 0.0, g = 0.0;
-  frequenciaClock = set_sys_clock_khz(128000, false); // frequência de clock
-    stdio_init_all(); // Inicialização da comunicação serial
+  bool frequenciaClock; // Variável para verificar se a frequência do clock foi configurada corretamente
+  uint16_t i; // Variável para controlar o loop
+  float r, g, b;   // Variáveis para controlar a intensidade de cada cor
+  pio = pio0; // Seleciona a PIO 0
+  uint32_t valor_led = 0; // Inicializa com preto (todos os LEDs apagados)
+
+  // Inicializa o Pico
+  frequenciaClock = set_sys_clock_khz(128000, false);
+    stdio_init_all(); 
+    gpio_init(LED_PIN);
     gpio_init(LED_PIN_RED);
     gpio_init(BOTAO_A);
     gpio_init(BOTAO_B);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_set_dir(LED_PIN_RED, GPIO_OUT);
     gpio_set_dir(BOTAO_A, GPIO_IN);
     gpio_set_dir(BOTAO_B, GPIO_IN);
+    gpio_pull_up(BOTAO_A);
+    gpio_pull_up(BOTAO_B);
     
   // configurações da PIO
     printf("iniciando a transmissão PIO");
-    if (frequenciaClock)
+    if (frequenciaClock){
       printf("clock set to %ld\n", clock_get_hz(clk_sys));
-    uint offset = pio_add_program(pio, &pio_matrix_program);
-    uint sm = pio_claim_unused_sm(pio, true);
-    pio_matrix_program_init(pio, sm, offset, LED_PIN);
+    }else if(!frequenciaClock){
+      printf("erro ao configurar a frequencia do clock");
+    }
+      uint offset = pio_add_program(pio, &pio_matrix_program);
+      sm = pio_claim_unused_sm(pio, true);
+      pio_matrix_program_init(pio, sm, offset, LED_PIN);
     
-    bool botao_pressionado = true;
+      desenho_pio(apagar_leds, valor_led, pio, sm, r, g, b); // Apaga os LEDs ao iniciar o programa
+      gpio_set_irq_enabled_with_callback(BOTAO_A, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
+      gpio_set_irq_enabled_with_callback(BOTAO_B, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
     // Loop infinito
     while (1) {
-      piscar_led();
+      piscar_led(); // Piscar o LED vermelho
     }
+    return 0;
 }
