@@ -55,10 +55,10 @@ int getIndex(int x, int y){
 
 // Função para controlar o índice da matriz
 void new_index(){
-  if (indice > 9){
+  if (indice > 10){
     indice = 0;
   }else if(indice < 0){
-    indice = 9;
+    indice = 10;
   }
 }
 
@@ -163,13 +163,13 @@ void acionar_buzzer(int interval)
             1.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double *numeros[10] = {numero0, numero1, numero2, numero3, numero4, numero5, numero6, numero7, numero8, numero9};
+        double *numeros[11] = {apagar_leds, numero0, numero1, numero2, numero3, numero4, numero5, numero6, numero7, numero8, numero9};
 
 
 void callback_button(uint gpio, uint32_t events) {
     uint time = to_ms_since_boot(get_absolute_time());
     if (time - actual_time > 250) { // Condição para evitar múltiplos pressionamentos (debounce)
-        actual_time = time;
+        actual_time = time; 
         if (gpio == BOTAO_A) {
             indice++;
             new_index();
