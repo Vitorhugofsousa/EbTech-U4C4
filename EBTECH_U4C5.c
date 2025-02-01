@@ -169,21 +169,22 @@ void acionar_buzzer(int interval)
 void callback_button(uint gpio, uint32_t events) {
     uint time = to_ms_since_boot(get_absolute_time());
     if (time - actual_time > 250) { // Condição para evitar múltiplos pressionamentos (debounce)
-        actual_time = time; 
-        if (gpio == BOTAO_A) {
-            indice++;
-            new_index();
-            desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);
-            count++;
-        } else if (gpio == BOTAO_B) {
-            indice--;
-            new_index();
+        actual_time = time;       // Atualiza o tempo
+        if (gpio == BOTAO_A) {  // Verifica se o botão A foi pressionado
+            indice++;          // Incrementa o índice
+            new_index();     // Verifica se o índice está dentro do intervalo
+            desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);  // Desenha o número na matriz
+            count++;       // Incrementa o contador
+        } else if (gpio == BOTAO_B) { // Verifica se o botão B foi pressionado
+            indice--;               // Decrementa o índice
+            new_index();  
             desenho_pio(numeros[indice], valor_led, pio, sm, 0.5, 0.0, 0.5);
             count++;
         }
     }
 }
         
+// Função principal
 int main() {
   bool frequenciaClock; // Variável para verificar se a frequência do clock foi configurada corretamente
   uint16_t i; // Variável para controlar o loop
@@ -192,7 +193,7 @@ int main() {
   uint32_t valor_led = 0; // Inicializa com preto (todos os LEDs apagados)
 
   // Inicializa o Pico
-  frequenciaClock = set_sys_clock_khz(128000, false);
+  frequenciaClock = set_sys_clock_khz(128000, false); // Configura a frequência do clock para 128 MHz
     stdio_init_all(); 
     gpio_init(LED_PIN);
     gpio_init(LED_PIN_RED);
@@ -205,6 +206,9 @@ int main() {
     gpio_pull_up(BOTAO_A);
     gpio_pull_up(BOTAO_B);
     
+    // Inicializa a matriz de LED
+      desenho_pio(apagar_leds, valor_led, pio, sm, r, g, b); // Apaga os LEDs ao iniciar o programa
+    
   // configurações da PIO
     printf("iniciando a transmissão PIO");
     if (frequenciaClock){
@@ -216,7 +220,6 @@ int main() {
       sm = pio_claim_unused_sm(pio, true);
       pio_matrix_program_init(pio, sm, offset, LED_PIN);
     
-      desenho_pio(apagar_leds, valor_led, pio, sm, r, g, b); // Apaga os LEDs ao iniciar o programa
       gpio_set_irq_enabled_with_callback(BOTAO_A, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
       gpio_set_irq_enabled_with_callback(BOTAO_B, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
     // Loop infinito
