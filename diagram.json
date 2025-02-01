@@ -180,15 +180,15 @@
     [ "rgb24:VSS", "gnd5:GND", "green", [ "v0" ] ],
     [ "rgb25:VSS", "gnd5:GND", "green", [ "v0" ] ],
     [ "btn1:2.l", "pico:GND.1", "black", [ "h0.2", "v172.8" ] ],
-    [ "pico:GND.2", "btn2:1.l", "black", [ "h-144", "v-221" ] ],
-    [ "pico:GP5", "btn2:2.l", "green", [ "h0" ] ],
-    [ "pico:GP6", "btn1:1.l", "green", [ "h0" ] ],
     [ "bz1:2", "r7:1", "black", [ "v0" ] ],
     [ "r7:2", "pico:GND.8", "black", [ "v56.4", "h-230.71" ] ],
     [ "pico:GP21", "bz1:1", "green", [ "h0" ] ],
     [ "led3:C", "r2:1", "green", [ "v0" ] ],
     [ "led3:A", "pico:GP13", "green", [ "h403.2", "v-134.44" ] ],
-    [ "r2:2", "pico:GND.4", "green", [ "h267.6", "v-144.04" ] ]
+    [ "r2:2", "pico:GND.4", "green", [ "h267.6", "v-144.04" ] ],
+    [ "btn2:2.l", "pico:GND.2", "black", [ "v0" ] ],
+    [ "btn1:1.l", "pico:GP6", "green", [ "v0" ] ],
+    [ "btn2:1.l", "pico:GP5", "green", [ "v0" ] ]
   ],
   "dependencies": {}
 }
