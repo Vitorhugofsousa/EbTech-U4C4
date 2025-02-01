@@ -8,14 +8,14 @@
 #include "pico/bootrom.h"
 #include "EBTECH_U4C5.pio.h"
 
-//definição dos pinos
+//DEFINIÇÃO DOS PINOS
 #define LED_PIN_RED 13 //led vermelho
 #define NUM_PIXELS 25 //número de leds na matriz
 #define LED_PIN 7 //pino de saída da matriz de led
 #define BOTAO_A 5 //pino saida botao a
 #define BOTAO_B 6 //pino saida botao b
 
-//variáveis globais
+//VARIÁVEIS GLOBAIS
 int static volatile indice = 0; //variável para countrole do índice da matriz de led
 uint count = 0; //variável para countrole do countador
 uint actual_time = 0; //variável para countrole do tempo
@@ -23,16 +23,16 @@ uint valor_led; //variável para countrole do valor do led
 uint sm;  //variável para countrole do state machine
 PIO pio = pio0;  //variável para countrole da pio
 
-//função piscar led, faz o led vermelho do pino 13 piscar 5 vezes por segundo
-    void piscar_led(){
-      gpio_put(LED_PIN_RED, true);
-      sleep_ms(25);
-      gpio_put(LED_PIN_RED, false);
-      sleep_ms(175);
+//FUNÇÃO PISCAR LED, FAZ O LED VERMELHO DO PINO 13 PISCAR 5 VEZES POR SEGUNDO
+void piscar_led(){ // Função para piscar o LED vermelho
+  gpio_put(LED_PIN_RED, true);  // Acende o LED vermelho
+  sleep_ms(25); // Aguarda 25 ms
+  gpio_put(LED_PIN_RED, false); // Apaga o LED vermelho
+  sleep_ms(175);  // Aguarda 175 ms
     }
 
 // MATRIZ DE LEDS
-// rotina para definição da intensidade de cores do led
+// ROTINA PARA DEFINIÇÃO DA INTENSIDADE DE CORES DO LED
 uint matrix_rgb(float r, float g, float b){
   unsigned char R, G, B;
   R = r * 255;
@@ -41,39 +41,38 @@ uint matrix_rgb(float r, float g, float b){
   return (G << 24) | (R << 16) | (B << 8);
 }
 
-// Função para converter a posição do matriz para uma posição do vetor.
+// FUNÇÃO PARA CONVERTER A POSIÇÃO DO MATRIZ PARA UMA POSIÇÃO DO VETOR
 int getIndex(int x, int y){
-  // Se a linha for par (0, 2, 4), percorremos da esquerda para a direita.
-  // Se a linha for ímpar (1, 3), percorremos da direita para a esquerda.
+  // Se a linha for par (0, 2, 4), percorremos da esquerda para a direita
+  // Se a linha for ímpar (1, 3), percorremos da direita para a esquerda
   if (y % 2 == 0){
-    return 24 - (y * 5 + x); // Linha par (esquerda para direita).
+    return 24 - (y * 5 + x); // Linha par (esquerda para direita)
   }else{
-    return 24 - (y * 5 + (4 - x)); // Linha ímpar (direita para esquerda).
+    return 24 - (y * 5 + (4 - x)); // Linha ímpar (direita para esquerda)
   }
 }
 
-// Função para controlar o índice da matriz
-void new_index(){
-  if (indice > 10){
+// FUNÇÃO PARA CONTROLAR O ÍNDICE DA MATRIZ
+void new_index(){   // Função para controlar o índice da matriz
+  if (indice > 10){ // Se o índice for maior que 10, volta para 0
     indice = 0;
-  }else if(indice < 0){
+  }else if(indice < 0){ // Se o índice for menor que 0, volta para 10
     indice = 10;
   }
 }
 
-// Funcao para desenhar a matriz
-void desenho_pio(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r, double g, double b)
-{
-  for (int16_t i = 0; i < NUM_PIXELS; i++)
+// FUNCAO PARA DESENHAR A MATRIZ
+void desenho_pio(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r, double g, double b){
+  for (int16_t i = 0; i < NUM_PIXELS; i++)  // Percorre todos os LEDs da matriz
   {
-    valor_led = matrix_rgb(desenho[i] * r, desenho[i] * g, desenho[i] * b);
-    pio_sm_put_blocking(pio, sm, valor_led);
+    valor_led = matrix_rgb(desenho[i] * r, desenho[i] * g, desenho[i] * b); // Define a intensidade de cada cor
+    pio_sm_put_blocking(pio, sm, valor_led);  // Atualiza o valor do LED
   };
 }
 
 
 
-//numeros para exibir na matriz de led
+//NUMEROS PARA EXIBIR NA MATRIZ DE LED
         double apagar_leds[25] ={   //Apagar LEDs da matriz
               0.0, 0.0, 0.0, 0.0, 0.0,          
               0.0, 0.0, 0.0, 0.0, 0.0, 
@@ -151,9 +150,9 @@ void desenho_pio(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r
             1.0, 0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0};
 
-        double *numeros[11] = {apagar_leds, numero0, numero1, numero2, numero3, numero4, numero5, numero6, numero7, numero8, numero9};
+        double *numeros[11] = {apagar_leds, numero0, numero1, numero2, numero3, numero4, numero5, numero6, numero7, numero8, numero9};  // Vetor com os números
 
-// Função de callback para os botões
+// FUNÇÃO DE CALLBACK PARA OS BOTÕES
 void callback_button(uint gpio, uint32_t events) {
     uint time = to_ms_since_boot(get_absolute_time());
     if (time - actual_time > 250) { // Condição para evitar múltiplos pressionamentos (debounce)
@@ -172,7 +171,7 @@ void callback_button(uint gpio, uint32_t events) {
     }
 }
         
-// Função principal
+// FUNÇÃO PRINCIPAL
 int main() {
   bool frequenciaClock; // Variável para verificar se a frequência do clock foi configurada corretamente
   uint16_t i; // Variável para controlar o loop
@@ -181,7 +180,7 @@ int main() {
   uint32_t valor_led = 0; // Inicializa com preto (todos os LEDs apagados)
 
   // Inicializa o Pico
-  frequenciaClock = set_sys_clock_khz(128000, false); // Configura a frequência do clock para 128 MHz
+    frequenciaClock = set_sys_clock_khz(128000, false); // Configura a frequência do clock para 128 MHz
     stdio_init_all(); 
     gpio_init(LED_PIN);
     gpio_init(LED_PIN_RED);
@@ -194,9 +193,6 @@ int main() {
     gpio_pull_up(BOTAO_A);
     gpio_pull_up(BOTAO_B);
 
-    // Inicializa a matriz de LED
-      desenho_pio(apagar_leds, valor_led, pio, sm, r, g, b); // Apaga os LEDs ao iniciar o programa
-    
   // configurações da PIO
     printf("iniciando a transmissão PIO");
     if (frequenciaClock){
@@ -208,6 +204,9 @@ int main() {
       sm = pio_claim_unused_sm(pio, true);
       pio_matrix_program_init(pio, sm, offset, LED_PIN);
     
+    // Inicializa a matriz de LED
+      desenho_pio(apagar_leds, valor_led, pio, sm, r, g, b); // Apaga os LEDs ao iniciar o programa
+
       // Configuração dos botões
       gpio_set_irq_enabled_with_callback(BOTAO_A, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
       gpio_set_irq_enabled_with_callback(BOTAO_B, GPIO_IRQ_EDGE_FALL, true, &callback_button);  
